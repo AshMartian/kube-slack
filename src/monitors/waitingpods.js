@@ -70,17 +70,37 @@ class PodStatus extends EventEmitter {
 				mrkdwn_in: ['text'],
 				...this.messageProps,
 			});
-			this.alerted[item.name] = item;
+			this.alerted[
+				`${item.pod.metadata.namespace}-${item.pod.metadata.name.replace(
+					/-([a-z1-9]{10})-([a-z1-9]{5})/,
+					''
+				)}`
+			] = item;
 		}
 	}
 
 	checkRecovery(item) {
 		if (
-			this.alerted[item.name] &&
+			this.alerted[
+				`${item.pod.metadata.namespace}-${item.pod.metadata.name.replace(
+					/-([a-z1-9]{10})-([a-z1-9]{5})/,
+					''
+				)}`
+			] &&
 			item.ready &&
-			this.alerted[item.name].restartCount == item.restartCount
+			this.alerted[
+				`${item.pod.metadata.namespace}-${item.pod.metadata.name.replace(
+					/-([a-z1-9]{10})-([a-z1-9]{5})/,
+					''
+				)}`
+			].restartCount == item.restartCount
 		) {
-			delete this.alerted[item.name];
+			delete this.alerted[
+				`${item.pod.metadata.namespace}-${item.pod.metadata.name.replace(
+					/-([a-z1-9]{10})-([a-z1-9]{5})/,
+					''
+				)}`
+			];
 			this.emit('message', {
 				fallback: `Container ${item.pod.metadata.namespace}/${
 					item.pod.metadata.name
